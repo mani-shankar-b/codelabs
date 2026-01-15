@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: sample-python-rollout
+  namespace: demo-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-python-rollout
+  template:
+    metadata:
+      labels:
+        app: sample-python-rollout
+    spec:
+      containers:
+      - name: sample-python-app
+        image: sample-python-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {}

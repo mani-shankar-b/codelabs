@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: tix-eyrie-rollout-app
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: tix-eyrie-rollout-app
+  strategy:
+    canary:
+      steps:
+      - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: tix-eyrie-rollout-app
+    spec:
+      containers:
+      - env:
+        - name: SERVER_PORT
+          value: "30003"
+        - name: SPRING_PROFILES_ACTIVE
+          value: default
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://cktest-mysql:3306/eyrie_db
+        - name: SPRING_DATASOURCE_USERNAME
+          value: root
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "123"
+        image: eyrie-app:latest
+        imagePullPolicy: IfNotPresent
+        name: tix-eyrie-rollout-app
+        ports:
+        - containerPort: 30003
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
